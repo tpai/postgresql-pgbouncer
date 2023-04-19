@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:13-alpine
+    container_name: postgres
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    environment:
+      - POSTGRES_DB=api
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=adminpassword
+    restart: always
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+      - ./postgres.conf:/etc/postgresql/postgresql.conf
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+  pgbouncer:
+    image: edoburu/pgbouncer:1.17.0
+    container_name: pgbouncer
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - ./pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+      - ./userlist.txt:/etc/pgbouncer/userlist.txt:ro
+    depends_on:
+      - postgres
